@@ -187,28 +187,32 @@ class RentViews:
     
     #Salva o novo aluguel e volta para listagem de alugueis
     def saveRent(request):
-
-        a = Address(street = request.POST['street'],
-                 number = request.POST['number'],
-                 complement = request.POST['complement'], 
-                 district = request.POST['district'],
-                 city = request.POST['city'],
-                 state = request.POST['state'] )
-        
+        a = Address(
+            street=request.POST['street'],
+            number=request.POST['number'],
+            complement=request.POST['complement'], 
+            district=request.POST['district'],
+            city=request.POST['city'],
+            state=request.POST['state']
+        )
         a.save()
         
-        rs = CalcDesconto()         
-        valor = rs.calculardesconto(request.POST['date'],  request.POST['select_theme'], request.POST['select_client'] )
+        rs = CalcDesconto()
+        valor = rs.calculardesconto(
+            request.POST['date'],
+            request.POST['select_theme'],
+            request.POST['select_client']
+        )
 
-        r = Rent(date=request.POST['date'], 
-                 start_hours=request.POST['start_hours'],
-                 end_hours=request.POST['end_hours'],
-                 client_id= request.POST['select_client'],
-                 theme_id = request.POST['select_theme'],
-                 address = a , 
-                 price = valor,
-                 )
-        
+        r = Rent(
+            date=request.POST['date'], 
+            start_hours=request.POST['start_hours'],
+            end_hours=request.POST['end_hours'],
+            client_id=request.POST['select_client'],
+            theme_id=request.POST['select_theme'],
+            address=a, 
+            price=valor
+        )
         r.save()
 
         return redirect('/listRent')

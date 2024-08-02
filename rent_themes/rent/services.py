@@ -1,22 +1,23 @@
-from .models import *
+from .models import Theme, Rent
 import datetime
-import calendar
 from django.shortcuts import get_object_or_404
 
-class  CalcDesconto():
-    def calculardesconto(self, date, tema, client):
-        desconto_dia = 0
-        desconto_cliente = 0
-        tema = get_object_or_404(Theme, pk = tema)
-        cliente = Rent.objects.filter(client = client).exists()
+class CalcDesconto():
+    def calculardesconto(self, date, tema_id, client_id):
+        tema = get_object_or_404(Theme, pk=tema_id)
+        cliente_ja_alugou = Rent.objects.filter(client_id=client_id).exists()
 
         date_em_datetime = datetime.datetime.strptime(date, "%Y-%m-%d")
-        if not date_em_datetime.isoweekday() > 4:
-            desconto_dia = tema.price * 0.40
 
-        for aluguel in Rent.objects.all():
-            if aluguel.client == cliente:
-                desconto_cliente = tema.price * 0.1
+        if 2 <= date_em_datetime.isoweekday() <= 4:
+            desconto_dia = tema.price * 0.40
+        else:
+            desconto_dia = 0
+
+        if cliente_ja_alugou:
+            desconto_cliente = tema.price * 0.10
+        else:
+            desconto_cliente = 0
 
         valor_total = tema.price - (desconto_cliente + desconto_dia)
 
