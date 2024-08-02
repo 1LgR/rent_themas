@@ -1,6 +1,6 @@
 from django.shortcuts import redirect, render
 from .models import *
-from .services import *
+from .services import CalcDesconto
 
 #Página inicial com a lista de clientes
 def index(request):
@@ -187,21 +187,30 @@ class RentViews:
     
     #Salva o novo aluguel e volta para listagem de alugueis
     def saveRent(request):
+
         a = Address(street = request.POST['street'],
                  number = request.POST['number'],
                  complement = request.POST['complement'], 
                  district = request.POST['district'],
                  city = request.POST['city'],
                  state = request.POST['state'] )
+        
         a.save()
         
+        rs = CalcDesconto()         
+        valor = rs.calculardesconto(request.POST['date'],  request.POST['select_theme'], request.POST['select_client'] )
+
         r = Rent(date=request.POST['date'], 
                  start_hours=request.POST['start_hours'],
                  end_hours=request.POST['end_hours'],
                  client_id= request.POST['select_client'],
                  theme_id = request.POST['select_theme'],
-                 address = a )
+                 address = a , 
+                 price = valor,
+                 )
+        
         r.save()
+
         return redirect('/listRent')
         
     #Deleta um aluguel e volta para listagem de alugueis
