@@ -6,9 +6,9 @@
         <form action="/saveRent/" method="post">
             {% csrf_token %}
             <div class="row mb-3">
-                <label class="col-sm-1 col-form-label" for="date">Data</label>
+                <label class="col-sm-1 col-form-label" for="rental-date">Data</label>
                 <div class="col-sm-11">
-                    <input id="date" type="date" name="date">
+                    <input type="date" id="rental-date" name="date">
                 </div>
             </div> 
 
@@ -26,53 +26,76 @@
                 </div>
             </div>
             
-            <div class="row mb-3">
-                <label class="col-sm-1 col-form-label" for="end">Tema</label>
-                <div class="col-sm-5">
-                    <select class="form-select" name="select_theme" id="theme-select">
-                        {% for theme in theme_list %}
-                            {% if theme %}
-                                <option value="{{ theme.id }}" data-price="{{ theme.price }}">{{ theme.name }}</option>
-                            {% endif %}
-                        {% endfor %}
-                    </select>
-                    <h5>Preço:</h5><h6 id="theme-price"></h6>
+            <div class="container">
+                <div class="row mb-3">
+                    <label class="col-sm-1 col-form-label" for="end">Tema</label>
+                    <div class="col-sm-5">
+                        <select class="form-select" name="select_theme" id="theme-select">
+                            {% for theme in theme_list %}
+                                {% if theme %}
+                                    <option value="{{ theme.id }}" data-price="{{ theme.price }}">{{ theme.name }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                        <h5>Preço:</h5><h6 id="theme-price"></h6>
+                    </div>
+                </div>
+        
+                <div class="row mb-3">
+                    <label class="col-sm-1 col-form-label" for="client">Cliente</label>
+                    <div class="col-sm-5">
+                        <select class="form-select" name="select_client" id="client-select">
+                            {% for client in client_list %}
+                                {% if client %}
+                                    <option value="{{ client.id }}" data-rentals="{{ client.rentals }}">{{ client.name }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
                 </div>
             </div>
-            
+        
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
                     const themeSelect = document.getElementById('theme-select');
+                    const clientSelect = document.getElementById('client-select');
+                    const rentalDateInput = document.getElementById('rental-date');
                     const themePrice = document.getElementById('theme-price');
-            
-                    // Função para atualizar o preço
+        
                     function updatePrice() {
-                        const selectedOption = themeSelect.options[themeSelect.selectedIndex];
-                        const price = selectedOption.getAttribute('data-price');
-                        themePrice.textContent = price ? `R$ ${price}` : 'N/A';
+                        const selectedTheme = themeSelect.options[themeSelect.selectedIndex];
+                        const selectedClient = clientSelect.options[clientSelect.selectedIndex];
+                        const rentalDate = new Date(rentalDateInput.value);
+        
+                        console.log('Selected Theme:', selectedTheme);
+                        console.log('Selected Client:', selectedClient);
+                        console.log('Rental Date:', rentalDate);
+        
+                        let price = parseFloat(selectedTheme.getAttribute('data-price')) || 0;
+        
+                        
+                        if (parseInt(selectedClient.getAttribute('data-rentals')) >= 1) {
+                            price *= 0.9;
+                        }
+        
+                        
+                        const dayOfWeek = rentalDate.getDay();
+                        if (dayOfWeek >= 1 && dayOfWeek <= 3) {  
+                            price *= 0.6;
+                        }
+        
+                        themePrice.textContent = price ? `R$ ${price.toFixed(2)}` : 'N/A';
                     }
-            
-                    // Adicionar evento de mudança
+        
                     themeSelect.addEventListener('change', updatePrice);
-            
-                    // Atualizar o preço ao carregar a página
+                    clientSelect.addEventListener('change', updatePrice);
+                    rentalDateInput.addEventListener('change', updatePrice);
+        
+                    
                     updatePrice();
                 });
             </script>
             
-
-            <div class="row mb-3">
-                <label class="col-sm-1 col-form-label"  for="end">Cliente</label>
-                <div class="col-sm-5">
-                    <select  class="form-select" name="select_client" id="">
-                        {% for client in client_list %}
-                            {% if client%}            
-                                    <option value="{{client.id}}">{{client.name}}</option>
-                            {% endif%}
-                        {% endfor %}
-                    </select> 
-                </div>
-            </div>
 
             <div class="row mb-3">
                 <label class="col-sm-1 col-form-label"  for="street">Endereço</label>
